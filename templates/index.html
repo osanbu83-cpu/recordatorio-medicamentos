@@ -5,89 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recordatorio de Medicamentos</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 16px;
-            color: #333;
-        }
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-        h1 {
-            font-size: 1.4rem;
-            color: #1a73e8;
-            margin-top: 0;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 14px;
-        }
-        label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            font-size: 1rem;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        button:active {
-            background-color: #1557b0;
-        }
-        .med-card {
-            background: #f9f9f9;
-            border-left: 4px solid #1a73e8;
-            padding: 12px;
-            margin-top: 12px;
-            border-radius: 4px;
-        }
-        .med-card h3 {
-            margin: 0 0 6px 0;
-            font-size: 1.1rem;
-        }
-        .med-card p {
-            margin: 2px 0;
-            font-size: 0.85rem;
-            color: #555;
-        }
-        .delete-btn {
-            background: #d93025;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            width: auto;
-            margin-top: 8px;
-        }
-        .test-btn {
-            background: #34a853;
-            margin-top: 6px;
-        }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6f8; margin: 0; padding: 16px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #1a73e8; text-align: center; font-size: 1.4rem; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
+        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
+        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; }
+        .test-btn { background: #34a853; }
+        .stop-btn { background: #e37400; display: none; margin-top: 8px; }
+        .med-card { background: #f9f9f9; border-left: 4px solid #1a73e8; padding: 12px; margin-top: 12px; border-radius: 4px; }
+        .delete-btn { background: #d93025; padding: 6px 12px; font-size: 0.8rem; width: auto; }
     </style>
 </head>
 <body>
@@ -96,22 +24,23 @@
     <h1>💊 Mis Medicamentos</h1>
     
     <div class="form-group">
-        <label for="nombre">Nombre del Medicamento</label>
+        <label>Nombre del Medicamento</label>
         <input type="text" id="nombre" placeholder="Ej: Losartán">
     </div>
 
     <div class="form-group">
-        <label for="frecuencia">Frecuencia (Horas)</label>
+        <label>Frecuencia (Horas)</label>
         <input type="number" id="frecuencia" placeholder="Ej: 8" min="1">
     </div>
 
     <div class="form-group">
-        <label for="horaInicio">Hora de la Primera Dosis</label>
+        <label>Hora de la Primera Dosis</label>
         <input type="time" id="horaInicio">
     </div>
 
     <button onclick="guardarMedicamento()">Guardar Medicamento</button>
-    <button class="test-btn" onclick="probarVoz()">🔊 Probar Sonido / Voz</button>
+    <button class="test-btn" onclick="probarSonido()">🔊 Probar Sonido y Permisos</button>
+    <button id="btnDetener" class="stop-btn" onclick="detenerAlarma()">🛑 Detener Alarma</button>
 
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
@@ -121,33 +50,67 @@
 
 <script>
     let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
+    let intervalId = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        mostrarMedicamentos();
-        // Revisar cada 5 segundos si coincide la hora
-        setInterval(comprobarAlarmas, 5000);
-    });
+    // Crear un todo de alarma sintético mediante AudioContext
+    let audioCtx = null;
+    let oscillator = null;
 
-    function decirTexto(texto) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel(); // Detener cualquier audio previo
-            const locucion = new SpeechSynthesisUtterance(texto);
-            locucion.lang = 'es-ES';
-            locucion.rate = 0.9; // Velocidad pausada para mayor claridad
-            locucion.pitch = 1;
-            locucion.volume = 1;
-            window.speechSynthesis.speak(locucion);
-        } else {
-            alert('Tu navegador no soporta síntesis de voz.');
+    function iniciarAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
     }
 
-    function probarVoz() {
-        decirTexto("Atención. Es hora de tomar tu medicamento.");
+    function sonarPitido() {
+        iniciarAudioContext();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono A5
+        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        
+        setTimeout(() => {
+            if (oscillator) oscillator.stop();
+        }, 1500);
+    }
+
+    function decirTexto(texto) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+            const locucion = new SpeechSynthesisUtterance(texto);
+            locucion.lang = 'es-ES';
+            locucion.rate = 0.9;
+            window.speechSynthesis.speak(locucion);
+        }
+    }
+
+    function probarSonido() {
+        iniciarAudioContext();
+        sonarPitido();
+        setTimeout(() => {
+            decirTexto("El sonido y la voz están funcionando correctamente.");
+        }, 1600);
+        
+        // Solicitar permisos de notificación si el navegador lo permite
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
+
+    function detenerAlarma() {
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        document.getElementById('btnDetener').style.display = 'none';
     }
 
     function guardarMedicamento() {
-        const nombre = document.getElementById('nombre').value;
+        const nombre = document.getElementById('nombre').value.trim();
         const frecuencia = parseInt(document.getElementById('frecuencia').value);
         const horaInicio = document.getElementById('horaInicio').value;
 
@@ -156,12 +119,20 @@
             return;
         }
 
+        // Calcular timestamp de la próxima toma
+        const [h, m] = horaInicio.split(':').map(Number);
+        let proxima = new Date();
+        proxima.setHours(h, m, 0, 0);
+        if (proxima < new Date()) {
+            proxima.setHours(proxima.getHours() + frecuencia);
+        }
+
         const nuevoMed = {
             id: Date.now(),
             nombre: nombre,
             frecuencia: frecuencia,
-            horaInicio: horaInicio,
-            ultimaNotificada: ''
+            proximaToma: proxima.getTime(),
+            notificado: false
         };
 
         medicamentos.push(nuevoMed);
@@ -171,41 +142,40 @@
         document.getElementById('frecuencia').value = '';
         document.getElementById('horaInicio').value = '';
 
-        // Activar permiso de audio al interactuar
-        decirTexto(`Medicamento ${nombre} guardado correctamente`);
-
+        probarSonido();
         mostrarMedicamentos();
     }
 
-    function obtenerProximaHora(horaInicioStr, frecuenciaHoras) {
-        const [horas, minutos] = horaInicioStr.split(':').map(Number);
-        const ahora = new Date();
-        let proximaToma = new Date();
-        
-        proximaToma.setHours(horas, minutos, 0, 0);
-
-        while (proximaToma <= ahora) {
-            proximaToma.setHours(proximaToma.getHours() + frecuenciaHoras);
-        }
-
-        return proximaToma;
-    }
-
     function comprobarAlarmas() {
-        const ahora = new Date();
-        const horaActualStr = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const ahora = Date.now();
 
         medicamentos.forEach(med => {
-            const proximaToma = obtenerProximaHora(med.horaInicio, med.frecuencia);
-            const proximaHoraStr = proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            // Si coincide el minuto actual y no ha sido notificada en esta misma hora
-            if (horaActualStr === proximaHoraStr && med.ultimaNotificada !== horaActualStr) {
-                med.ultimaNotificada = horaActualStr;
-                localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+            // Si ya llegó la hora (con un margen de tolerancia) y no ha sido notificado
+            if (ahora >= med.proximaToma && !med.notificado) {
+                med.notificado = true;
                 
-                // Alerta hablada (se repite 2 veces)
-                decirTexto(`Atención. Es hora de tomar tu medicamento: ${med.nombre}. Repito, es hora de tomar ${med.nombre}.`);
+                // Programar la siguiente toma en el objeto
+                med.proximaToma = med.proximaToma + (med.frecuencia * 3600 * 1000);
+                med.notificado = false; // Reset para el siguiente ciclo
+                
+                localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+
+                // Disparar Alarma
+                document.getElementById('btnDetener').style.display = 'block';
+                sonarPitido();
+                setTimeout(() => {
+                    decirTexto(`Atención. Es hora de tomar tu medicamento: ${med.nombre}.`);
+                }, 1600);
+
+                // Notificación del sistema (para cuando la pantalla esté bloqueada/en segundo plano)
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("💊 Hora de tu medicamento", {
+                        body: `Es hora de tomar ${med.nombre}`,
+                        icon: "/static/icon.png"
+                    });
+                }
+
+                mostrarMedicamentos();
             }
         });
     }
@@ -220,8 +190,8 @@
         }
 
         medicamentos.forEach(med => {
-            const proximaToma = obtenerProximaHora(med.horaInicio, med.frecuencia);
-            const horaTexto = proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const fechaDosis = new Date(med.proximaToma);
+            const horaTexto = fechaDosis.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             const card = document.createElement('div');
             card.className = 'med-card';
@@ -240,6 +210,11 @@
         localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
         mostrarMedicamentos();
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        mostrarMedicamentos();
+        setInterval(comprobarAlarmas, 3000);
+    });
 </script>
 
 </body>
