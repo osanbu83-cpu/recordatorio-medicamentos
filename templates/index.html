@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recordatorio de Medicamentos</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 16px;
+            color: #333;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h1 {
+            font-size: 1.4rem;
+            color: #1a73e8;
+            margin-top: 0;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        button:active {
+            background-color: #1557b0;
+        }
+        .med-card {
+            background: #f9f9f9;
+            border-left: 4px solid #1a73e8;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 4px;
+            position: relative;
+        }
+        .med-card h3 {
+            margin: 0 0 6px 0;
+            font-size: 1.1rem;
+        }
+        .med-card p {
+            margin: 2px 0;
+            font-size: 0.85rem;
+            color: #555;
+        }
+        .delete-btn {
+            background: #d93025;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            width: auto;
+            margin-top: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💊 Mis Medicamentos</h1>
+    
+    <div class="form-group">
+        <label for="nombre">Nombre del Medicamento</label>
+        <input type="text" id="nombre" placeholder="Ej: Paracetamol">
+    </div>
+
+    <div class="form-group">
+        <label for="frecuencia">Frecuencia (Horas)</label>
+        <input type="number" id="frecuencia" placeholder="Ej: 8" min="1">
+    </div>
+
+    <div class="form-group">
+        <label for="horaInicio">Hora de la Primera Dosis</label>
+        <input type="time" id="horaInicio">
+    </div>
+
+    <button onclick="guardarMedicamento()">Guardar Medicamento</button>
+
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+    <h2>Próximas Tomas</h2>
+    <div id="listaMedicamentos"></div>
+</div>
+
+<script>
+    // Cargar medicamentos guardados al abrir la app
+    document.addEventListener('DOMContentLoaded', mostrarMedicamentos);
+
+    function guardarMedicamento() {
+        const nombre = document.getElementById('nombre').value;
+        const frecuencia = parseInt(document.getElementById('frecuencia').value);
+        const horaInicio = document.getElementById('horaInicio').value;
+
+        if (!nombre || !frecuencia || !horaInicio) {
+            alert('Por favor completa todos los campos');
+            return;
+        }
+
+        const nuevoMed = {
+            id: Date.now(),
+            nombre: nombre,
+            frecuencia: frecuencia,
+            horaInicio: horaInicio
+        };
+
+        let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
+        medicamentos.push(nuevoMed);
+        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+
+        // Limpiar campos
+        document.getElementById('nombre').value = '';
+        document.getElementById('frecuencia').value = '';
+        document.getElementById('horaInicio').value = '';
+
+        mostrarMedicamentos();
+    }
+
+    function calcularProximaToma(horaInicioStr, frecuenciaHoras) {
+        const [horas, minutos] = horaInicioStr.split(':').map(Number);
+        const ahora = new Date();
+        let proximaToma = new Date();
+        
+        proximaToma.setHours(horas, minutos, 0, 0);
+
+        // Si la hora inicial ya pasó hoy, sumamos intervalos de frecuencia hasta encontrar la siguiente
+        while (proximaToma <= ahora) {
+            proximaToma.setHours(proximaToma.getHours() + frecuenciaHoras);
+        }
+
+        return proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function mostrarMedicamentos() {
+        const lista = document.getElementById('listaMedicamentos');
+        lista.innerHTML = '';
+        const medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
+
+        if (medicamentos.length === 0) {
+            lista.innerHTML = '<p style="color: #777;">No hay medicamentos registrados.</p>';
+            return;
+        }
+
+        medicamentos.forEach(med => {
+            const proximaToma = calcularProximaToma(med.horaInicio, med.frecuencia);
+            const card = document.createElement('div');
+            card.className = 'med-card';
+            card.innerHTML = `
+                <h3>${med.nombre}</h3>
+                <p><strong>Frecuencia:</strong> Cada ${med.frecuencia} horas</p>
+                <p><strong>Próxima dosis:</strong> ${proximaToma}</p>
+                <button class="delete-btn" onclick="eliminarMedicamento(${med.id})">Eliminar</button>
+            `;
+            lista.appendChild(card);
+        });
+    }
+
+    function eliminarMedicamento(id) {
+        let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
+        medicamentos = medicamentos.filter(med => med.id !== id);
+        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+        mostrarMedicamentos();
+    }
+</script>
+
+</body>
+</html>
