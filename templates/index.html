@@ -13,9 +13,15 @@
         input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
         button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; }
         .test-btn { background: #34a853; }
-        .stop-btn { background: #e37400; display: none; margin-top: 8px; }
+        .stop-btn { background: #d93025; display: none; margin-top: 8px; font-size: 1.1rem; animation: palpitar 1s infinite; }
         .med-card { background: #f9f9f9; border-left: 4px solid #1a73e8; padding: 12px; margin-top: 12px; border-radius: 4px; }
-        .delete-btn { background: #d93025; padding: 6px 12px; font-size: 0.8rem; width: auto; }
+        .delete-btn { background: #555; padding: 6px 12px; font-size: 0.8rem; width: auto; }
+
+        @keyframes palpitar {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -40,7 +46,9 @@
 
     <button onclick="guardarMedicamento()">Guardar Medicamento</button>
     <button class="test-btn" onclick="probarSonido()">🔊 Probar Sonido y Permisos</button>
-    <button id="btnDetener" class="stop-btn" onclick="detenerAlarma()">🛑 Detener Alarma</button>
+    
+    <!-- Botón de alarma en bucle (aparece al sonar) -->
+    <button id="btnDetener" class="stop-btn" onclick="detenerAlarma()">🛑 DETENER ALARMA</button>
 
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
@@ -50,11 +58,8 @@
 
 <script>
     let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
-    let intervalId = null;
-
-    // Crear un todo de alarma sintético mediante AudioContext
     let audioCtx = null;
-    let oscillator = null;
+    let bucleAlarmaInterval = null; // Controla la repetición constante
 
     function iniciarAudioContext() {
         if (!audioCtx) {
@@ -67,18 +72,18 @@
         if (audioCtx.state === 'suspended') {
             audioCtx.resume();
         }
-        oscillator = audioCtx.createOscillator();
+        const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono A5
-        gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.start();
         
         setTimeout(() => {
-            if (oscillator) oscillator.stop();
-        }, 1500);
+            oscillator.stop();
+        }, 800);
     }
 
     function decirTexto(texto) {
@@ -96,16 +101,45 @@
         sonarPitido();
         setTimeout(() => {
             decirTexto("El sonido y la voz están funcionando correctamente.");
-        }, 1600);
+        }, 1000);
         
-        // Solicitar permisos de notificación si el navegador lo permite
         if ("Notification" in window && Notification.permission !== "granted") {
             Notification.requestPermission();
         }
     }
 
+    // DISPARA LA ALARMA EN BUCLE INFINITO HASTA QUE PULSEN EL BOTÓN ROJO
+    function iniciarAlarmaBucle(nombreMed) {
+        // Si ya hay una alarma sonando, no superponer
+        if (bucleAlarmaInterval) return;
+
+        document.getElementById('btnDetener').style.display = 'block';
+
+        // Ejecutar inmediatamente la primera vez
+        sonarPitido();
+        setTimeout(() => {
+            decirTexto(`¡Atención! Es hora de tomar el medicamento: ${nombreMed}. Por favor tómalo y presiona detener.`);
+        }, 900);
+
+        // Repetir el ciclo cada 5 segundos de manera insistente
+        bucleAlarmaInterval = setInterval(() => {
+            sonarPitido();
+            setTimeout(() => {
+                decirTexto(`Recuerda tomar tu medicamento: ${nombreMed}.`);
+            }, 900);
+        }, 5000);
+    }
+
     function detenerAlarma() {
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        // Detiene el bucle constante de repetición
+        if (bucleAlarmaInterval) {
+            clearInterval(bucleAlarmaInterval);
+            bucleAlarmaInterval = null;
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel();
+        }
+        // Ocultar botón de emergencia
         document.getElementById('btnDetener').style.display = 'none';
     }
 
@@ -119,7 +153,6 @@
             return;
         }
 
-        // Calcular timestamp de la próxima toma
         const [h, m] = horaInicio.split(':').map(Number);
         let proxima = new Date();
         proxima.setHours(h, m, 0, 0);
@@ -150,27 +183,21 @@
         const ahora = Date.now();
 
         medicamentos.forEach(med => {
-            // Si ya llegó la hora (con un margen de tolerancia) y no ha sido notificado
             if (ahora >= med.proximaToma && !med.notificado) {
                 med.notificado = true;
                 
-                // Programar la siguiente toma en el objeto
+                // Programar la siguiente toma matemática
                 med.proximaToma = med.proximaToma + (med.frecuencia * 3600 * 1000);
-                med.notificado = false; // Reset para el siguiente ciclo
+                med.notificado = false; 
                 
                 localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
 
-                // Disparar Alarma
-                document.getElementById('btnDetener').style.display = 'block';
-                sonarPitido();
-                setTimeout(() => {
-                    decirTexto(`Atención. Es hora de tomar tu medicamento: ${med.nombre}.`);
-                }, 1600);
+                // LLAMAR AL BUCLE DE ALARMA INSISTENTE
+                iniciarAlarmaBucle(med.nombre);
 
-                // Notificación del sistema (para cuando la pantalla esté bloqueada/en segundo plano)
                 if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification("💊 Hora de tu medicamento", {
-                        body: `Es hora de tomar ${med.nombre}`,
+                    new Notification("💊 ¡Hora de tu medicamento!", {
+                        body: `Es hora de tomar ${med.nombre}. ¡Presiona detener en la app!`,
                         icon: "/static/icon.png"
                     });
                 }
