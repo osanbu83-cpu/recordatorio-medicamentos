@@ -3,63 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recordatorio de Medicamentos</title>
+    <title>Mi Remedio - Recordatorio de Medicamentos</title>
+    <!-- Fuente moderna desde Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: system-ui, -apple-system, sans-serif; background: #f4f6f8; margin: 0; padding: 16px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #1a73e8; text-align: center; font-size: 1.4rem; }
-        .form-group { margin-bottom: 12px; }
-        label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 4px; }
-        input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1rem; }
-        button { width: 100%; padding: 12px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 8px; cursor: pointer; }
-        .test-btn { background: #34a853; }
-        .stop-btn { background: #d93025; display: none; margin-top: 8px; font-size: 1.1rem; animation: palpitar 1s infinite; }
-        .med-card { background: #f9f9f9; border-left: 4px solid #1a73e8; padding: 12px; margin-top: 12px; border-radius: 4px; }
-        .delete-btn { background: #555; padding: 6px 12px; font-size: 0.8rem; width: auto; }
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --danger: #ef4444;
+            --success: #10b981;
+            --border: #e2e8f0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: var(--background); 
+            color: var(--text-main); 
+            padding: 20px 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container { 
+            width: 100%; 
+            max-width: 480px; 
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+        }
+
+        .form-group { margin-bottom: 14px; }
+
+        label { 
+            display: block; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            margin-bottom: 6px; 
+            color: var(--text-main);
+        }
+
+        input { 
+            width: 100%; 
+            padding: 12px 14px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            font-size: 0.95rem; 
+            font-family: inherit;
+            background: #f8fafc;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            border: none; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            transition: transform 0.1s ease, background 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active { transform: scale(0.98); }
+
+        .btn-primary { background: var(--primary); color: white; margin-top: 6px; }
+        .btn-primary:hover { background: var(--primary-hover); }
+
+        .btn-test { background: #f1f5f9; color: var(--text-main); margin-top: 10px; border: 1px solid var(--border); }
+        .btn-test:hover { background: #e2e8f0; }
+
+        .stop-btn { 
+            background: var(--danger); 
+            color: white; 
+            display: none; 
+            font-size: 1.1rem; 
+            padding: 18px;
+            border-radius: 12px;
+            animation: palpitar 1.2s infinite; 
+            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+        }
 
         @keyframes palpitar {
             0% { transform: scale(1); }
             50% { transform: scale(1.03); }
             100% { transform: scale(1); }
         }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .med-card { 
+            background: #ffffff; 
+            border: 1px solid var(--border);
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 12px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .med-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .med-info h3 { 
+            font-size: 1.05rem; 
+            font-weight: 700; 
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .med-info p { 
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            margin-bottom: 2px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .delete-btn { 
+            background: #fee2e2; 
+            color: var(--danger);
+            border: none;
+            padding: 10px 12px; 
+            font-size: 0.8rem; 
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover { background: #fca5a5; color: #7f1d1d; }
+        .empty-state { text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>💊 Mis Medicamentos</h1>
-    
-    <div class="form-group">
-        <label>Nombre del Medicamento</label>
-        <input type="text" id="nombre" placeholder="Ej: Losartán">
+<div class="app-container">
+    <div class="header">
+        <h1>💊 Mi Remedio</h1>
+        <p>Recordatorio sencillo y seguro de medicamentos</p>
     </div>
 
-    <div class="form-group">
-        <label>Frecuencia (Horas)</label>
-        <input type="number" id="frecuencia" placeholder="Ej: 8" min="1">
+    <!-- Botón de parada de emergencia cuando suena la alarma -->
+    <button id="btnDetener" class="btn stop-btn" onclick="detenerAlarma()">🛑 DETENER ALARMA</button>
+
+    <div class="card">
+        <h2 class="section-title">Programar Dosis</h2>
+        
+        <div class="form-group">
+            <label>Nombre del Medicamento</label>
+            <input type="text" id="nombre" placeholder="Ej: Losartán 50mg">
+        </div>
+
+        <div class="form-group">
+            <label>Frecuencia (Horas)</label>
+            <input type="number" id="frecuencia" placeholder="Ej: 8" min="1">
+        </div>
+
+        <div class="form-group">
+            <label>Hora de la Primera Dosis</label>
+            <input type="time" id="horaInicio">
+        </div>
+
+        <button class="btn btn-primary" onclick="guardarMedicamento()">+ Guardar Medicamento</button>
+        <button class="btn btn-test" onclick="probarSonido()">🔊 Probar Sonido y Permisos</button>
     </div>
 
-    <div class="form-group">
-        <label>Hora de la Primera Dosis</label>
-        <input type="time" id="horaInicio">
+    <div class="card">
+        <h2 class="section-title">Próximas Tomas</h2>
+        <div id="listaMedicamentos"></div>
     </div>
-
-    <button onclick="guardarMedicamento()">Guardar Medicamento</button>
-    <button class="test-btn" onclick="probarSonido()">🔊 Probar Sonido y Permisos</button>
-    
-    <!-- Botón de alarma en bucle (aparece al sonar) -->
-    <button id="btnDetener" class="stop-btn" onclick="detenerAlarma()">🛑 DETENER ALARMA</button>
-
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-
-    <h2>Próximas Tomas</h2>
-    <div id="listaMedicamentos"></div>
 </div>
 
 <script>
     let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
     let audioCtx = null;
-    let bucleAlarmaInterval = null; // Controla la repetición constante
+    let bucleAlarmaInterval = null;
+    let medicamentoActualSonando = null;
 
     function iniciarAudioContext() {
         if (!audioCtx) {
@@ -75,15 +258,13 @@
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Tono A5
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.start();
         
-        setTimeout(() => {
-            oscillator.stop();
-        }, 800);
+        setTimeout(() => { oscillator.stop(); }, 800);
     }
 
     function decirTexto(texto) {
@@ -108,30 +289,26 @@
         }
     }
 
-    // DISPARA LA ALARMA EN BUCLE INFINITO HASTA QUE PULSEN EL BOTÓN ROJO
-    function iniciarAlarmaBucle(nombreMed) {
-        // Si ya hay una alarma sonando, no superponer
+    function iniciarAlarmaBucle(med) {
         if (bucleAlarmaInterval) return;
 
+        medicamentoActualSonando = med;
         document.getElementById('btnDetener').style.display = 'block';
 
-        // Ejecutar inmediatamente la primera vez
         sonarPitido();
         setTimeout(() => {
-            decirTexto(`¡Atención! Es hora de tomar el medicamento: ${nombreMed}. Por favor tómalo y presiona detener.`);
+            decirTexto(`¡Atención! Es hora de tomar el medicamento: ${med.nombre}. Por favor tómalo y presiona detener.`);
         }, 900);
 
-        // Repetir el ciclo cada 5 segundos de manera insistente
         bucleAlarmaInterval = setInterval(() => {
             sonarPitido();
             setTimeout(() => {
-                decirTexto(`Recuerda tomar tu medicamento: ${nombreMed}.`);
+                decirTexto(`Recuerda tomar tu medicamento: ${med.nombre}.`);
             }, 900);
         }, 5000);
     }
 
     function detenerAlarma() {
-        // Detiene el bucle constante de repetición
         if (bucleAlarmaInterval) {
             clearInterval(bucleAlarmaInterval);
             bucleAlarmaInterval = null;
@@ -139,8 +316,18 @@
         if ('speechSynthesis' in window) {
             window.speechSynthesis.cancel();
         }
-        // Ocultar botón de emergencia
         document.getElementById('btnDetener').style.display = 'none';
+
+        if (medicamentoActualSonando) {
+            // Calcula la siguiente toma sumando la frecuencia a partir de este momento en que se detiene
+            medicamentoActualSonando.proximaToma = Date.now() + (medicamentoActualSonando.frecuencia * 3600 * 1000);
+            medicamentoActualSonando.notificado = false;
+            
+            localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+            mostrarMedicamentos();
+            
+            medicamentoActualSonando = null;
+        }
     }
 
     function guardarMedicamento() {
@@ -185,15 +372,9 @@
         medicamentos.forEach(med => {
             if (ahora >= med.proximaToma && !med.notificado) {
                 med.notificado = true;
-                
-                // Programar la siguiente toma matemática
-                med.proximaToma = med.proximaToma + (med.frecuencia * 3600 * 1000);
-                med.notificado = false; 
-                
                 localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
 
-                // LLAMAR AL BUCLE DE ALARMA INSISTENTE
-                iniciarAlarmaBucle(med.nombre);
+                iniciarAlarmaBucle(med);
 
                 if ("Notification" in window && Notification.permission === "granted") {
                     new Notification("💊 ¡Hora de tu medicamento!", {
@@ -201,8 +382,6 @@
                         icon: "/static/icon.png"
                     });
                 }
-
-                mostrarMedicamentos();
             }
         });
     }
@@ -212,7 +391,7 @@
         lista.innerHTML = '';
 
         if (medicamentos.length === 0) {
-            lista.innerHTML = '<p style="color: #777;">No hay medicamentos registrados.</p>';
+            lista.innerHTML = '<div class="empty-state">No tienes medicamentos registrados aún.</div>';
             return;
         }
 
@@ -223,9 +402,11 @@
             const card = document.createElement('div');
             card.className = 'med-card';
             card.innerHTML = `
-                <h3>${med.nombre}</h3>
-                <p><strong>Frecuencia:</strong> Cada ${med.frecuencia} horas</p>
-                <p><strong>Próxima dosis:</strong> ${horaTexto}</p>
+                <div class="med-info">
+                    <h3>${med.nombre}</h3>
+                    <p>Frecuencia: Cada ${med.frecuencia} h</p>
+                    <span class="badge">⏰ Próxima: ${horaTexto}</span>
+                </div>
                 <button class="delete-btn" onclick="eliminarMedicamento(${med.id})">Eliminar</button>
             `;
             lista.appendChild(card);
