@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Remedio - Recordatorio de Medicamentos</title>
-    <!-- Fuente moderna desde Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Mi Remedio - Recordatorio</title>
+    <!-- Enlaces para el Manifiesto y PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- Fuente moderna desde Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #2563eb;
@@ -15,415 +20,360 @@
             --text-main: #0f172a;
             --text-muted: #64748b;
             --danger: #ef4444;
-            --success: #10b981;
+            --danger-hover: #dc2626;
+            --success: #22c55e;
             --border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: var(--background); 
-            color: var(--text-main); 
-            padding: 20px 16px;
-            display: flex;
-            justify-content: center;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
         }
 
-        .app-container { 
-            width: 100%; 
-            max-width: 480px; 
+        body {
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 20px;
-        }
-
-        .header {
-            text-align: center;
-            padding: 10px 0;
-        }
-
-        .header h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: var(--primary);
-            display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
+            padding: 20px;
         }
 
-        .header p {
-            font-size: 0.9rem;
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        header p {
             color: var(--text-muted);
+            font-size: 0.875rem;
             margin-top: 4px;
         }
 
         .card {
             background: var(--card-bg);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
         }
 
-        .form-group { margin-bottom: 14px; }
+        .form-group {
+            margin-bottom: 16px;
+        }
 
-        label { 
-            display: block; 
-            font-weight: 600; 
-            font-size: 0.85rem; 
-            margin-bottom: 6px; 
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 6px;
             color: var(--text-main);
         }
 
-        input { 
-            width: 100%; 
-            padding: 12px 14px; 
-            border-radius: 10px; 
-            border: 1px solid var(--border); 
-            font-size: 0.95rem; 
-            font-family: inherit;
-            background: #f8fafc;
-            transition: all 0.2s ease;
-        }
-
-        input:focus {
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
             outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
             border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
-        .btn { 
-            width: 100%; 
-            padding: 14px; 
-            border: none; 
-            border-radius: 10px; 
-            font-weight: 700; 
-            font-size: 0.95rem; 
-            cursor: pointer; 
-            transition: transform 0.1s ease, background 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
 
-        .btn:active { transform: scale(0.98); }
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
 
-        .btn-primary { background: var(--primary); color: white; margin-top: 6px; }
-        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
 
-        .btn-test { background: #f1f5f9; color: var(--text-main); margin-top: 10px; border: 1px solid var(--border); }
-        .btn-test:hover { background: #e2e8f0; }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
 
-        .stop-btn { 
-            background: var(--danger); 
-            color: white; 
-            display: none; 
-            font-size: 1.1rem; 
-            padding: 18px;
+        .btn-danger:hover {
+            background-color: var(--danger-hover);
+        }
+
+        .status-box {
+            text-align: center;
+            padding: 16px;
             border-radius: 12px;
-            animation: palpitar 1.2s infinite; 
-            box-shadow: 0 10px 20px rgba(239, 68, 68, 0.3);
+            background: #f1f5f9;
+            margin-top: 12px;
         }
 
-        @keyframes palpitar {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.03); }
-            100% { transform: scale(1); }
-        }
-
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .med-card { 
-            background: #ffffff; 
-            border: 1px solid var(--border);
-            padding: 16px; 
-            border-radius: 12px; 
-            margin-bottom: 12px; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: box-shadow 0.2s ease;
-        }
-
-        .med-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        .med-info h3 { 
-            font-size: 1.05rem; 
-            font-weight: 700; 
-            color: var(--text-main);
+        .status-box h3 {
+            font-size: 0.95rem;
+            color: var(--text-muted);
             margin-bottom: 4px;
         }
 
-        .med-info p { 
-            font-size: 0.85rem; 
-            color: var(--text-muted); 
-            margin-bottom: 2px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: #eff6ff;
+        .status-box .time-display {
+            font-size: 1.5rem;
+            font-weight: 700;
             color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 700;
-            font-size: 0.8rem;
-            margin-top: 4px;
         }
 
-        .delete-btn { 
-            background: #fee2e2; 
+        /* Modal de Alarma Activa */
+        #alarm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            animation: pulse-modal 1.5s infinite;
+        }
+
+        @keyframes pulse-modal {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .modal-content h2 {
             color: var(--danger);
-            border: none;
-            padding: 10px 12px; 
-            font-size: 0.8rem; 
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
+            font-size: 1.75rem;
+            margin-bottom: 10px;
         }
 
-        .delete-btn:hover { background: #fca5a5; color: #7f1d1d; }
-        .empty-state { text-align: center; color: var(--text-muted); padding: 20px 0; font-size: 0.9rem; }
+        .modal-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <h1>💊 Mi Remedio</h1>
-        <p>Recordatorio sencillo y seguro de medicamentos</p>
-    </div>
+    <div class="container">
+        <header>
+            <h1>Mi Remedio</h1>
+            <p>Control y recordatorio inteligente de medicamentos</p>
+        </header>
 
-    <!-- Botón de parada de emergencia cuando suena la alarma -->
-    <button id="btnDetener" class="btn stop-btn" onclick="detenerAlarma()">🛑 DETENER ALARMA</button>
-
-    <div class="card">
-        <h2 class="section-title">Programar Dosis</h2>
-        
-        <div class="form-group">
-            <label>Nombre del Medicamento</label>
-            <input type="text" id="nombre" placeholder="Ej: Losartán 50mg">
-        </div>
-
-        <div class="form-group">
-            <label>Frecuencia (Horas)</label>
-            <input type="number" id="frecuencia" placeholder="Ej: 8" min="1">
-        </div>
-
-        <div class="form-group">
-            <label>Hora de la Primera Dosis</label>
-            <input type="time" id="horaInicio">
-        </div>
-
-        <button class="btn btn-primary" onclick="guardarMedicamento()">+ Guardar Medicamento</button>
-        <button class="btn btn-test" onclick="probarSonido()">🔊 Probar Sonido y Permisos</button>
-    </div>
-
-    <div class="card">
-        <h2 class="section-title">Próximas Tomas</h2>
-        <div id="listaMedicamentos"></div>
-    </div>
-</div>
-
-<script>
-    let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
-    let audioCtx = null;
-    let bucleAlarmaInterval = null;
-    let medicamentoActualSonando = null;
-
-    function iniciarAudioContext() {
-        if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-    }
-
-    function sonarPitido() {
-        iniciarAudioContext();
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.6, audioCtx.currentTime);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        
-        setTimeout(() => { oscillator.stop(); }, 800);
-    }
-
-    function decirTexto(texto) {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const locucion = new SpeechSynthesisUtterance(texto);
-            locucion.lang = 'es-ES';
-            locucion.rate = 0.9;
-            window.speechSynthesis.speak(locucion);
-        }
-    }
-
-    function probarSonido() {
-        iniciarAudioContext();
-        sonarPitido();
-        setTimeout(() => {
-            decirTexto("El sonido y la voz están funcionando correctamente.");
-        }, 1000);
-        
-        if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-        }
-    }
-
-    function iniciarAlarmaBucle(med) {
-        if (bucleAlarmaInterval) return;
-
-        medicamentoActualSonando = med;
-        document.getElementById('btnDetener').style.display = 'block';
-
-        sonarPitido();
-        setTimeout(() => {
-            decirTexto(`¡Atención! Es hora de tomar el medicamento: ${med.nombre}. Por favor tómalo y presiona detener.`);
-        }, 900);
-
-        bucleAlarmaInterval = setInterval(() => {
-            sonarPitido();
-            setTimeout(() => {
-                decirTexto(`Recuerda tomar tu medicamento: ${med.nombre}.`);
-            }, 900);
-        }, 5000);
-    }
-
-    function detenerAlarma() {
-        if (bucleAlarmaInterval) {
-            clearInterval(bucleAlarmaInterval);
-            bucleAlarmaInterval = null;
-        }
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-        }
-        document.getElementById('btnDetener').style.display = 'none';
-
-        if (medicamentoActualSonando) {
-            // Calcula la siguiente toma sumando la frecuencia a partir de este momento en que se detiene
-            medicamentoActualSonando.proximaToma = Date.now() + (medicamentoActualSonando.frecuencia * 3600 * 1000);
-            medicamentoActualSonando.notificado = false;
+        <!-- Tarjeta de Configuración -->
+        <div class="card" id="setup-card">
+            <div class="form-group">
+                <label for="med-name">Nombre del Medicamento</label>
+                <input type="text" id="med-name" class="form-control" placeholder="Ej. Pastilla para la presión">
+            </div>
             
-            localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
-            mostrarMedicamentos();
-            
-            medicamentoActualSonando = null;
-        }
-    }
+            <div class="form-group">
+                <label for="start-time">Hora de la primera toma</label>
+                <input type="time" id="start-time" class="form-control">
+            </div>
 
-    function guardarMedicamento() {
-        const nombre = document.getElementById('nombre').value.trim();
-        const frecuencia = parseInt(document.getElementById('frecuencia').value);
-        const horaInicio = document.getElementById('horaInicio').value;
+            <div class="form-group">
+                <label for="interval-hours">Frecuencia (cada cuántas horas)</label>
+                <input type="number" id="interval-hours" class="form-control" value="8" min="1" max="24">
+            </div>
 
-        if (!nombre || !frecuencia || !horaInicio) {
-            alert('Por favor completa todos los campos');
-            return;
-        }
+            <button class="btn btn-primary" onclick="startAlarmSystem()">Activar Recordatorio</button>
+        </div>
 
-        const [h, m] = horaInicio.split(':').map(Number);
-        let proxima = new Date();
-        proxima.setHours(h, m, 0, 0);
-        if (proxima < new Date()) {
-            proxima.setHours(proxima.getHours() + frecuencia);
-        }
+        <!-- Tarjeta de Estado Activo -->
+        <div class="card" id="status-card" style="display: none;">
+            <div class="form-group">
+                <h3 id="active-med-name" style="font-size: 1.1rem; color: var(--text-main); text-align: center; margin-bottom: 8px;">Medicamento</h3>
+            </div>
+            <div class="status-box">
+                <h3>Próxima toma programada:</h3>
+                <div class="time-display" id="next-dose-time">--:--</div>
+            </div>
+            <button class="btn btn-danger" style="margin-top: 16px;" onclick="cancelAlarm()">Cancelar / Cambiar Configuración</button>
+        </div>
+    </div>
 
-        const nuevoMed = {
-            id: Date.now(),
-            nombre: nombre,
-            frecuencia: frecuencia,
-            proximaToma: proxima.getTime(),
-            notificado: false
+    <!-- Modal de Alarma Activa (Insistente) -->
+    <div id="alarm-modal">
+        <div class="modal-content">
+            <h2>¡Hora de tu medicina!</h2>
+            <p id="modal-med-text">Es momento de tomar tu dosis.</p>
+            <button class="btn btn-primary" onclick="acknowledgeAlarm()">Ya me la tomé (Detener)</button>
+        </div>
+    </div>
+
+    <script>
+        let alarmTimer = null;
+        let audioContext = null;
+        let beepInterval = null;
+
+        // Cargar estado guardado al abrir la app
+        window.onload = function() {
+            const savedState = localStorage.getItem('medState');
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                document.getElementById('setup-card').style.display = 'none';
+                document.getElementById('status-card').style.display = 'block';
+                document.getElementById('next-dose-time').innerText = state.nextDoseTimeStr;
+                document.getElementById('active-med-name').innerText = "Medicamento: " + state.medName;
+                checkAlarmLoop(state);
+            }
         };
 
-        medicamentos.push(nuevoMed);
-        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+        function startAlarmSystem() {
+            const medName = document.getElementById('med-name').value || 'Medicamento';
+            const startTimeStr = document.getElementById('start-time').value;
+            const intervalHours = parseFloat(document.getElementById('interval-hours').value);
 
-        document.getElementById('nombre').value = '';
-        document.getElementById('frecuencia').value = '';
-        document.getElementById('horaInicio').value = '';
-
-        probarSonido();
-        mostrarMedicamentos();
-    }
-
-    function comprobarAlarmas() {
-        const ahora = Date.now();
-
-        medicamentos.forEach(med => {
-            if (ahora >= med.proximaToma && !med.notificado) {
-                med.notificado = true;
-                localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
-
-                iniciarAlarmaBucle(med);
-
-                if ("Notification" in window && Notification.permission === "granted") {
-                    new Notification("💊 ¡Hora de tu medicamento!", {
-                        body: `Es hora de tomar ${med.nombre}. ¡Presiona detener en la app!`,
-                        icon: "/static/icon.png"
-                    });
-                }
+            if (!startTimeStr) {
+                alert('Por favor selecciona una hora de inicio.');
+                return;
             }
-        });
-    }
 
-    function mostrarMedicamentos() {
-        const lista = document.getElementById('listaMedicamentos');
-        lista.innerHTML = '';
+            const now = new Date();
+            const [hours, minutes] = startTimeStr.split(':');
+            let nextDose = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
 
-        if (medicamentos.length === 0) {
-            lista.innerHTML = '<div class="empty-state">No tienes medicamentos registrados aún.</div>';
-            return;
+            // Si la hora elegida ya pasó hoy, programarla para mañana a la misma hora
+            if (nextDose <= now) {
+                nextDose.setHours(nextDose.getHours() + intervalHours);
+            }
+
+            const state = {
+                medName: medName,
+                nextDoseTimestamp: nextDose.getTime(),
+                nextDoseTimeStr: nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                intervalHours: intervalHours
+            };
+
+            localStorage.setItem('medState', JSON.stringify(state));
+
+            document.getElementById('setup-card').style.display = 'none';
+            document.getElementById('status-card').style.display = 'block';
+            document.getElementById('next-dose-time').innerText = state.nextDoseTimeStr;
+            document.getElementById('active-med-name').innerText = "Medicamento: " + medName;
+
+            checkAlarmLoop(state);
+            alert('¡Recordatorio activado con éxito!');
         }
 
-        medicamentos.forEach(med => {
-            const fechaDosis = new Date(med.proximaToma);
-            const horaTexto = fechaDosis.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        function checkAlarmLoop(state) {
+            if (alarmTimer) clearInterval(alarmTimer);
 
-            const card = document.createElement('div');
-            card.className = 'med-card';
-            card.innerHTML = `
-                <div class="med-info">
-                    <h3>${med.nombre}</h3>
-                    <p>Frecuencia: Cada ${med.frecuencia} h</p>
-                    <span class="badge">⏰ Próxima: ${horaTexto}</span>
-                </div>
-                <button class="delete-btn" onclick="eliminarMedicamento(${med.id})">Eliminar</button>
-            `;
-            lista.appendChild(card);
-        });
-    }
+            alarmTimer = setInterval(() => {
+                const now = new Date().getTime();
+                if (now >= state.nextDoseTimestamp) {
+                    triggerAlarmSound();
+                    document.getElementById('modal-med-text').innerText = `Es hora de tu medicina: ${state.medName}`;
+                    document.getElementById('alarm-modal').style.display = 'flex';
+                }
+            }, 1000);
+        }
 
-    function eliminarMedicamento(id) {
-        medicamentos = medicamentos.filter(med => med.id !== id);
-        localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
-        mostrarMedicamentos();
-    }
+        // Generador de sonido de alarma insistente (Beep beep)
+        function triggerAlarmSound() {
+            if (beepInterval) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log("Audio Context no soportado");
+            }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        mostrarMedicamentos();
-        setInterval(comprobarAlarmas, 3000);
-    });
-</script>
+            beepInterval = setInterval(() => {
+                if (!audioContext) return;
+                try {
+                    let osc = audioContext.createOscillator();
+                    let gain = audioContext.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = 800;
+                    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start();
+                    osc.stop(audioContext.currentTime + 0.3);
+                } catch(err) {
+                    console.log(err);
+                }
+            }, 800);
+        }
 
+        // Acción al presionar el botón de "Ya me la tomé"
+        function acknowledgeAlarm() {
+            // Detener sonido
+            if (beepInterval) {
+                clearInterval(beepInterval);
+                beepInterval = null;
+            }
+            document.getElementById('alarm-modal').style.display = 'none';
+
+            // Calcular automáticamente la siguiente dosis sumando el intervalo
+            const savedState = JSON.parse(localStorage.getItem('medState'));
+            if (savedState) {
+                let nextDose = new Date(savedState.nextDoseTimestamp + (savedState.intervalHours * 3600 * 1000));
+                
+                savedState.nextDoseTimestamp = nextDose.getTime();
+                savedState.nextDoseTimeStr = nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                localStorage.setItem('medState', JSON.stringify(savedState));
+                document.getElementById('next-dose-time').innerText = savedState.nextDoseTimeStr;
+                
+                checkAlarmLoop(savedState);
+            }
+        }
+
+        function cancelAlarm() {
+            if (beepInterval) {
+                clearInterval(beepInterval);
+                beepInterval = null;
+            }
+            if (alarmTimer) clearInterval(alarmTimer);
+            localStorage.removeItem('medState');
+            document.getElementById('alarm-modal').style.display = 'none';
+            document.getElementById('status-card').style.display = 'none';
+            document.getElementById('setup-card').style.display = 'block';
+        }
+    </script>
 </body>
 </html>
