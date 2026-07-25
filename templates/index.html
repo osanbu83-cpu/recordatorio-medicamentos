@@ -35,7 +35,7 @@
             font-weight: 600;
             margin-bottom: 6px;
         }
-        input, select, button {
+        input {
             width: 100%;
             padding: 10px;
             border-radius: 8px;
@@ -44,10 +44,14 @@
             font-size: 1rem;
         }
         button {
+            width: 100%;
+            padding: 12px;
             background-color: #1a73e8;
             color: white;
             border: none;
+            border-radius: 8px;
             font-weight: bold;
+            font-size: 1rem;
             margin-top: 10px;
             cursor: pointer;
         }
@@ -60,7 +64,6 @@
             padding: 12px;
             margin-top: 12px;
             border-radius: 4px;
-            position: relative;
         }
         .med-card h3 {
             margin: 0 0 6px 0;
@@ -75,10 +78,14 @@
             background: #d93025;
             color: white;
             border: none;
-            padding: 4px 8px;
+            padding: 6px 12px;
             border-radius: 4px;
             font-size: 0.8rem;
             width: auto;
+            margin-top: 8px;
+        }
+        .test-btn {
+            background: #34a853;
             margin-top: 6px;
         }
     </style>
@@ -90,7 +97,7 @@
     
     <div class="form-group">
         <label for="nombre">Nombre del Medicamento</label>
-        <input type="text" id="nombre" placeholder="Ej: Paracetamol">
+        <input type="text" id="nombre" placeholder="Ej: Losartán">
     </div>
 
     <div class="form-group">
@@ -104,6 +111,7 @@
     </div>
 
     <button onclick="guardarMedicamento()">Guardar Medicamento</button>
+    <button class="test-btn" onclick="probarVoz()">🔊 Probar Sonido / Voz</button>
 
     <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
 
@@ -112,8 +120,31 @@
 </div>
 
 <script>
-    // Cargar medicamentos guardados al abrir la app
-    document.addEventListener('DOMContentLoaded', mostrarMedicamentos);
+    let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        mostrarMedicamentos();
+        // Revisar cada 5 segundos si coincide la hora
+        setInterval(comprobarAlarmas, 5000);
+    });
+
+    function decirTexto(texto) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Detener cualquier audio previo
+            const locucion = new SpeechSynthesisUtterance(texto);
+            locucion.lang = 'es-ES';
+            locucion.rate = 0.9; // Velocidad pausada para mayor claridad
+            locucion.pitch = 1;
+            locucion.volume = 1;
+            window.speechSynthesis.speak(locucion);
+        } else {
+            alert('Tu navegador no soporta síntesis de voz.');
+        }
+    }
+
+    function probarVoz() {
+        decirTexto("Atención. Es hora de tomar tu medicamento.");
+    }
 
     function guardarMedicamento() {
         const nombre = document.getElementById('nombre').value;
@@ -129,40 +160,59 @@
             id: Date.now(),
             nombre: nombre,
             frecuencia: frecuencia,
-            horaInicio: horaInicio
+            horaInicio: horaInicio,
+            ultimaNotificada: ''
         };
 
-        let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
         medicamentos.push(nuevoMed);
         localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
 
-        // Limpiar campos
         document.getElementById('nombre').value = '';
         document.getElementById('frecuencia').value = '';
         document.getElementById('horaInicio').value = '';
 
+        // Activar permiso de audio al interactuar
+        decirTexto(`Medicamento ${nombre} guardado correctamente`);
+
         mostrarMedicamentos();
     }
 
-    function calcularProximaToma(horaInicioStr, frecuenciaHoras) {
+    function obtenerProximaHora(horaInicioStr, frecuenciaHoras) {
         const [horas, minutos] = horaInicioStr.split(':').map(Number);
         const ahora = new Date();
         let proximaToma = new Date();
         
         proximaToma.setHours(horas, minutos, 0, 0);
 
-        // Si la hora inicial ya pasó hoy, sumamos intervalos de frecuencia hasta encontrar la siguiente
         while (proximaToma <= ahora) {
             proximaToma.setHours(proximaToma.getHours() + frecuenciaHoras);
         }
 
-        return proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return proximaToma;
+    }
+
+    function comprobarAlarmas() {
+        const ahora = new Date();
+        const horaActualStr = ahora.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        medicamentos.forEach(med => {
+            const proximaToma = obtenerProximaHora(med.horaInicio, med.frecuencia);
+            const proximaHoraStr = proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Si coincide el minuto actual y no ha sido notificada en esta misma hora
+            if (horaActualStr === proximaHoraStr && med.ultimaNotificada !== horaActualStr) {
+                med.ultimaNotificada = horaActualStr;
+                localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
+                
+                // Alerta hablada (se repite 2 veces)
+                decirTexto(`Atención. Es hora de tomar tu medicamento: ${med.nombre}. Repito, es hora de tomar ${med.nombre}.`);
+            }
+        });
     }
 
     function mostrarMedicamentos() {
         const lista = document.getElementById('listaMedicamentos');
         lista.innerHTML = '';
-        const medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
 
         if (medicamentos.length === 0) {
             lista.innerHTML = '<p style="color: #777;">No hay medicamentos registrados.</p>';
@@ -170,13 +220,15 @@
         }
 
         medicamentos.forEach(med => {
-            const proximaToma = calcularProximaToma(med.horaInicio, med.frecuencia);
+            const proximaToma = obtenerProximaHora(med.horaInicio, med.frecuencia);
+            const horaTexto = proximaToma.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             const card = document.createElement('div');
             card.className = 'med-card';
             card.innerHTML = `
                 <h3>${med.nombre}</h3>
                 <p><strong>Frecuencia:</strong> Cada ${med.frecuencia} horas</p>
-                <p><strong>Próxima dosis:</strong> ${proximaToma}</p>
+                <p><strong>Próxima dosis:</strong> ${horaTexto}</p>
                 <button class="delete-btn" onclick="eliminarMedicamento(${med.id})">Eliminar</button>
             `;
             lista.appendChild(card);
@@ -184,7 +236,6 @@
     }
 
     function eliminarMedicamento(id) {
-        let medicamentos = JSON.parse(localStorage.getItem('medicamentos')) || [];
         medicamentos = medicamentos.filter(med => med.id !== id);
         localStorage.setItem('medicamentos', JSON.stringify(medicamentos));
         mostrarMedicamentos();
