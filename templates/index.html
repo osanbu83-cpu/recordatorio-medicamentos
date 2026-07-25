@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Remedio - Recordatorio</title>
-    <!-- Enlaces para el Manifiesto y PWA -->
+    <title>Mis Medicamentos</title>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2563eb">
-    
-    <!-- Fuente moderna desde Google -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
+            --success: #16a34a;
+            --success-hover: #15803d;
             --background: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --border: #e2e8f0;
+            --danger: #374151;
+            --border: #cbd5e1;
         }
 
         * {
@@ -38,75 +35,82 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            max-width: 440px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 24px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-top: 10px;
         }
 
-        header {
+        h1.main-title {
+            font-size: 1.5rem;
+            color: #1d4ed8;
+            font-weight: 700;
             text-align: center;
             margin-bottom: 24px;
-        }
-
-        header h1 {
-            font-size: 1.5rem;
-            color: var(--text-main);
-            font-weight: 700;
-        }
-
-        header p {
-            color: var(--text-muted);
-            font-size: 0.875rem;
-            margin-top: 4px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .form-group {
-            margin-bottom: 16px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
+            font-size: 0.95rem;
+            font-weight: 600;
             margin-bottom: 6px;
             color: var(--text-main);
         }
 
         .form-control {
             width: 100%;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             outline: none;
+            background: #fff;
             transition: border-color 0.2s;
         }
 
         .form-control:focus {
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23131313%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 12px;
+            padding-right: 40px;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
@@ -118,33 +122,86 @@
             background-color: var(--primary-hover);
         }
 
-        .btn-danger {
-            background-color: var(--danger);
+        .btn-success {
+            background-color: var(--success);
             color: white;
         }
 
-        .btn-danger:hover {
-            background-color: var(--danger-hover);
+        .btn-success:hover {
+            background-color: var(--success-hover);
         }
 
-        .status-box {
-            text-align: center;
-            padding: 16px;
-            border-radius: 12px;
-            background: #f1f5f9;
-            margin-top: 12px;
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 28px 0;
         }
 
-        .status-box h3 {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .status-box .time-display {
-            font-size: 1.5rem;
+        h2.section-title {
+            font-size: 1.35rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--text-main);
+            margin-bottom: 16px;
+        }
+
+        .dose-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border-left: 5px solid var(--primary);
+            margin-bottom: 14px;
+        }
+
+        .dose-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 10px;
+        }
+
+        .dose-card p {
+            font-size: 0.95rem;
+            color: #334155;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .dose-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 14px;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-danger-sm {
+            background-color: #334155;
+            color: white;
+        }
+
+        .btn-share-sm {
+            background: none;
+            border: none;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
 
         /* Modal de Alarma Activa */
@@ -179,7 +236,7 @@
         }
 
         .modal-content h2 {
-            color: var(--danger);
+            color: #ef4444;
             font-size: 1.75rem;
             margin-bottom: 10px;
         }
@@ -205,41 +262,55 @@
 <body>
 
     <div class="container">
-        <header>
-            <h1>Mi Remedio</h1>
-            <p>Control y recordatorio inteligente de medicamentos</p>
-        </header>
+        <h1 class="main-title">💊 Mis Medicamentos</h1>
 
-        <!-- Tarjeta de Configuración -->
-        <div class="card" id="setup-card">
-            <div class="form-group">
-                <label for="med-name">Nombre del Medicamento</label>
-                <input type="text" id="med-name" class="form-control" placeholder="Ej. Doles / Losartán">
-            </div>
-            
-            <div class="form-group">
-                <label for="start-time">Hora de la primera toma</label>
-                <input type="time" id="start-time" class="form-control">
-            </div>
-
-            <div class="form-group">
-                <label for="interval-hours">Frecuencia (cada cuántas horas)</label>
-                <input type="number" id="interval-hours" class="form-control" value="8" min="1" max="24">
-            </div>
-
-            <button class="btn btn-primary" onclick="startAlarmSystem()">Activar Recordatorio</button>
+        <!-- Formulario -->
+        <div class="form-group">
+            <label for="med-name">Nombre del Medicamento</label>
+            <input type="text" id="med-name" class="form-control" placeholder="Ej: Losartán">
         </div>
 
-        <!-- Tarjeta de Estado Activo -->
-        <div class="card" id="status-card" style="display: none;">
-            <div class="form-group">
-                <h3 id="active-med-name" style="font-size: 1.1rem; color: var(--text-main); text-align: center; margin-bottom: 8px; font-weight: 600;">Medicamento: --</h3>
-            </div>
-            <div class="status-box">
-                <h3>Próxima toma programada:</h3>
-                <div class="time-display" id="next-dose-time">--:--</div>
-            </div>
-            <button class="btn btn-danger" style="margin-top: 16px;" onclick="cancelAlarm()">Cancelar / Cambiar Configuración</button>
+        <div class="form-group">
+            <label for="interval-hours">Frecuencia (Horas)</label>
+            <input type="number" id="interval-hours" class="form-control" placeholder="Ej: 8" min="1" max="24" value="8">
+        </div>
+
+        <div class="form-group">
+            <label for="start-time">Hora de la Primera Dosis</label>
+            <select id="start-time" class="form-control">
+                <option value="">Seleccionar hora de inicio...</option>
+                <option value="06:00">06:00 a.m.</option>
+                <option value="07:00">07:00 a.m.</option>
+                <option value="08:00">08:00 a.m.</option>
+                <option value="09:00">09:00 a.m.</option>
+                <option value="10:00">10:00 a.m.</option>
+                <option value="11:00">11:00 a.m.</option>
+                <option value="12:00">12:00 p.m.</option>
+                <option value="13:00">01:00 p.m.</option>
+                <option value="14:00">02:00 p.m.</option>
+                <option value="14:58">02:58 p.m. (Prueba)</option>
+                <option value="15:00">03:00 p.m.</option>
+                <option value="16:00">04:00 p.m.</option>
+                <option value="17:00">05:00 p.m.</option>
+                <option value="18:00">06:00 p.m.</option>
+                <option value="19:00">07:00 p.m.</option>
+                <option value="20:00">08:00 p.m.</option>
+                <option value="21:00">09:00 p.m.</option>
+                <option value="22:00">10:00 p.m.</option>
+                <option value="23:00">11:00 p.m.</option>
+                <option value="00:00">12:00 a.m.</option>
+            </select>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveMedication()">Guardar Medicamento</button>
+        <button class="btn btn-success" onclick="testSoundAndPermissions()">🔊 Probar Sonido y Permisos</button>
+
+        <div class="divider"></div>
+
+        <h2 class="section-title">Próximas Tomas</h2>
+
+        <div id="doses-container">
+            <!-- Contenido dinámico o vista previa -->
         </div>
     </div>
 
@@ -257,58 +328,37 @@
         let alarmTimer = null;
         let audioContext = null;
         let beepInterval = null;
+        let speechInterval = null;
 
-        // Cargar estado guardado al abrir la aplicación
         window.onload = function() {
-            const savedState = localStorage.getItem('medState');
-            if (savedState) {
-                const state = JSON.parse(savedState);
-                document.getElementById('setup-card').style.display = 'none';
-                document.getElementById('status-card').style.display = 'block';
-                document.getElementById('next-dose-time').innerText = state.nextDoseTimeStr;
-                document.getElementById('active-med-name').innerText = "Medicamento: " + state.medName;
-                checkAlarmLoop(state);
+            loadState();
+            const saved = localStorage.getItem('medState');
+            if (!saved) {
+                renderDefaultPreview();
             }
         };
 
-        function startAlarmSystem() {
-            const medName = document.getElementById('med-name').value.trim() || 'Medicamento';
-            const startTimeStr = document.getElementById('start-time').value;
-            const intervalHours = parseFloat(document.getElementById('interval-hours').value);
+        function renderDefaultPreview() {
+            const container = document.getElementById('doses-container');
+            container.innerHTML = `
+                <div class="dose-card">
+                    <h3>Dolex</h3>
+                    <p><strong>Frecuencia:</strong> Cada 8 horas</p>
+                    <p><strong>Próxima dosis:</strong> 02:58 p.m.</p>
+                    <div class="dose-actions">
+                        <button class="btn-sm btn-danger-sm" onclick="clearDefaultPreview()">Eliminar</button>
+                        <button class="btn-share-sm" onclick="shareDose('Dolex', '02:58 p.m.')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            Compartir
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
 
-            if (!startTimeStr) {
-                alert('Por favor selecciona una hora de inicio.');
-                return;
-            }
-
-            // Desbloquear audio para móviles al hacer clic
-            initAudioContext();
-
-            const now = new Date();
-            const [hours, minutes] = startTimeStr.split(':');
-            let nextDose = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
-
-            // Si la hora elegida ya pasó hoy, programarla para el siguiente ciclo
-            if (nextDose <= now) {
-                nextDose.setHours(nextDose.getHours() + intervalHours);
-            }
-
-            const state = {
-                medName: medName,
-                nextDoseTimestamp: nextDose.getTime(),
-                nextDoseTimeStr: nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                intervalHours: intervalHours
-            };
-
-            localStorage.setItem('medState', JSON.stringify(state));
-
-            document.getElementById('setup-card').style.display = 'none';
-            document.getElementById('status-card').style.display = 'block';
-            document.getElementById('next-dose-time').innerText = state.nextDoseTimeStr;
-            document.getElementById('active-med-name').innerText = "Medicamento: " + medName;
-
-            checkAlarmLoop(state);
-            alert('¡Recordatorio activado con éxito!');
+        function clearDefaultPreview() {
+            localStorage.removeItem('medState');
+            document.getElementById('doses-container').innerHTML = '<p style="color: #64748b; text-align: center; font-size: 0.9rem;">No hay medicamentos programados.</p>';
         }
 
         function initAudioContext() {
@@ -316,7 +366,7 @@
                 try {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 } catch (e) {
-                    console.log("Audio Context no soportado");
+                    console.log("Audio not supported");
                 }
             }
             if (audioContext && audioContext.state === 'suspended') {
@@ -324,20 +374,115 @@
             }
         }
 
-        function checkAlarmLoop(state) {
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                let utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.95;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function testSoundAndPermissions() {
+            initAudioContext();
+            speakText("Prueba de sonido y permisos activados correctamente.");
+            triggerAlarmSound();
+            alert("🔊 Sonido y voz de prueba activados.");
+            setTimeout(() => {
+                if (beepInterval) {
+                    clearInterval(beepInterval);
+                    beepInterval = null;
+                }
+            }, 3000);
+        }
+
+        function saveMedication() {
+            const medName = document.getElementById('med-name').value.trim();
+            const startTime = document.getElementById('start-time').value;
+            const intervalHours = parseFloat(document.getElementById('interval-hours').value);
+
+            if (!medName) {
+                alert('Por favor ingresa el nombre del medicamento.');
+                return;
+            }
+            if (!startTime) {
+                alert('Por favor selecciona la hora de la primera dosis.');
+                return;
+            }
+
+            initAudioContext();
+            speakText("Recordatorio activado para " + medName);
+
+            const now = new Date();
+            const [hours, minutes] = startTime.split(':');
+            let nextDose = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(minutes), 0);
+
+            if (nextDose <= now) {
+                nextDose.setHours(nextDose.getHours() + intervalHours);
+            }
+
+            const timeString = nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+
+            const state = {
+                medName: medName,
+                intervalHours: intervalHours,
+                nextDoseTimestamp: nextDose.getTime(),
+                nextDoseTimeStr: timeString
+            };
+
+            localStorage.setItem('medState', JSON.stringify(state));
+            renderState(state);
+            startAlarmLoop(state);
+            alert('¡Medicamento guardado y recordatorio activado con éxito!');
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('medState');
+            if (saved) {
+                const state = JSON.parse(saved);
+                renderState(state);
+                startAlarmLoop(state);
+            }
+        }
+
+        function renderState(state) {
+            const container = document.getElementById('doses-container');
+            container.innerHTML = `
+                <div class="dose-card">
+                    <h3>${escapeHtml(state.medName)}</h3>
+                    <p><strong>Frecuencia:</strong> Cada ${state.intervalHours} horas</p>
+                    <p><strong>Próxima dosis:</strong> ${state.nextDoseTimeStr}</p>
+                    <div class="dose-actions">
+                        <button class="btn-sm btn-danger-sm" onclick="cancelAlarm()">Eliminar</button>
+                        <button class="btn-share-sm" onclick="shareDose('${escapeHtml(state.medName)}', '${state.nextDoseTimeStr}')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            Compartir
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function startAlarmLoop(state) {
             if (alarmTimer) clearInterval(alarmTimer);
 
             alarmTimer = setInterval(() => {
                 const now = new Date().getTime();
                 if (now >= state.nextDoseTimestamp) {
                     triggerAlarmSound();
+                    triggerVoiceAlarm(state.medName);
                     document.getElementById('modal-med-name').innerText = state.medName;
                     document.getElementById('alarm-modal').style.display = 'flex';
                 }
             }, 1000);
         }
 
-        // Generador de sonido de alarma original (Pitidos insistentes tipo Beep)
         function triggerAlarmSound() {
             if (beepInterval) return;
             initAudioContext();
@@ -360,27 +505,42 @@
             }, 800);
         }
 
-        // Al presionar "Ya me la tomé", se detiene el sonido y se programa automáticamente la próxima hora exacta
+        function triggerVoiceAlarm(medName) {
+            if (speechInterval) return;
+            const message = `Tienes que tomarte la pastilla ${medName}. Es hora de tu medicina.`;
+            speakText(message);
+
+            speechInterval = setInterval(() => {
+                speakText(message);
+            }, 6000);
+        }
+
         function acknowledgeAlarm() {
             if (beepInterval) {
                 clearInterval(beepInterval);
                 beepInterval = null;
             }
+            if (speechInterval) {
+                clearInterval(speechInterval);
+                speechInterval = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+
             document.getElementById('alarm-modal').style.display = 'none';
 
-            const savedState = JSON.parse(localStorage.getItem('medState'));
-            if (savedState) {
-                // Sumar las horas del intervalo configurado a la última hora para la siguiente toma
-                let nextDose = new Date(savedState.nextDoseTimestamp + (savedState.intervalHours * 3600 * 1000));
+            const saved = localStorage.getItem('medState');
+            if (saved) {
+                let state = JSON.parse(saved);
+                let nextDose = new Date(state.nextDoseTimestamp + (state.intervalHours * 3600 * 1000));
                 
-                savedState.nextDoseTimestamp = nextDose.getTime();
-                savedState.nextDoseTimeStr = nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                state.nextDoseTimestamp = nextDose.getTime();
+                state.nextDoseTimeStr = nextDose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
 
-                localStorage.setItem('medState', JSON.stringify(savedState));
-                document.getElementById('next-dose-time').innerText = savedState.nextDoseTimeStr;
-                
-                // Seguir vigilando para el siguiente ciclo
-                checkAlarmLoop(savedState);
+                localStorage.setItem('medState', JSON.stringify(state));
+                renderState(state);
+                startAlarmLoop(state);
             }
         }
 
@@ -389,11 +549,28 @@
                 clearInterval(beepInterval);
                 beepInterval = null;
             }
+            if (speechInterval) {
+                clearInterval(speechInterval);
+                speechInterval = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
             if (alarmTimer) clearInterval(alarmTimer);
             localStorage.removeItem('medState');
             document.getElementById('alarm-modal').style.display = 'none';
-            document.getElementById('status-card').style.display = 'none';
-            document.getElementById('setup-card').style.display = 'block';
+            renderDefaultPreview();
+        }
+
+        function shareDose(medName, timeStr) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Recordatorio de Medicamento',
+                    text: `Debo tomar mi medicamento ${medName} a las ${timeStr}.`
+                }).catch(() => {});
+            } else {
+                alert(`Recordatorio: Debo tomar ${medName} a las ${timeStr}.`);
+            }
         }
     </script>
 </body>
