@@ -21,7 +21,6 @@
             --text-muted: #64748b;
             --danger: #ef4444;
             --danger-hover: #dc2626;
-            --success: #22c55e;
             --border: #e2e8f0;
         }
 
@@ -156,7 +155,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -170,14 +169,13 @@
             text-align: center;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-            animation: pulse-modal 1.5s infinite;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            animation: pulse-modal 1s infinite alternate;
         }
 
         @keyframes pulse-modal {
             0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
+            100% { transform: scale(1.03); }
         }
 
         .modal-content h2 {
@@ -186,10 +184,21 @@
             margin-bottom: 10px;
         }
 
+        .modal-content .med-name-alert {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            background: #eff6ff;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #bfdbfe;
+        }
+
         .modal-content p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             margin-bottom: 20px;
-            color: var(--text-main);
+            color: var(--text-muted);
         }
     </style>
 </head>
@@ -205,7 +214,7 @@
         <div class="card" id="setup-card">
             <div class="form-group">
                 <label for="med-name">Nombre del Medicamento</label>
-                <input type="text" id="med-name" class="form-control" placeholder="Ej. Pastilla para la presión">
+                <input type="text" id="med-name" class="form-control" placeholder="Ej. Doles / Losartán">
             </div>
             
             <div class="form-group">
@@ -224,7 +233,7 @@
         <!-- Tarjeta de Estado Activo -->
         <div class="card" id="status-card" style="display: none;">
             <div class="form-group">
-                <h3 id="active-med-name" style="font-size: 1.1rem; color: var(--text-main); text-align: center; margin-bottom: 8px;">Medicamento</h3>
+                <h3 id="active-med-name" style="font-size: 1.1rem; color: var(--text-main); text-align: center; margin-bottom: 8px; font-weight: 600;">Medicamento: --</h3>
             </div>
             <div class="status-box">
                 <h3>Próxima toma programada:</h3>
@@ -234,11 +243,12 @@
         </div>
     </div>
 
-    <!-- Modal de Alarma Activa (Insistente) -->
+    <!-- Modal de Alarma Activa -->
     <div id="alarm-modal">
         <div class="modal-content">
             <h2>¡Hora de tu medicina!</h2>
-            <p id="modal-med-text">Es momento de tomar tu dosis.</p>
+            <div class="med-name-alert" id="modal-med-name">Nombre del Remedio</div>
+            <p>Es momento de tomar tu dosis programada.</p>
             <button class="btn btn-primary" onclick="acknowledgeAlarm()">Ya me la tomé (Detener)</button>
         </div>
     </div>
@@ -248,7 +258,7 @@
         let audioContext = null;
         let beepInterval = null;
 
-        // Cargar estado guardado al abrir la app
+        // Cargar estado guardado al abrir la aplicación
         window.onload = function() {
             const savedState = localStorage.getItem('medState');
             if (savedState) {
@@ -262,7 +272,7 @@
         };
 
         function startAlarmSystem() {
-            const medName = document.getElementById('med-name').value || 'Medicamento';
+            const medName = document.getElementById('med-name').value.trim() || 'Medicamento';
             const startTimeStr = document.getElementById('start-time').value;
             const intervalHours = parseFloat(document.getElementById('interval-hours').value);
 
@@ -271,11 +281,14 @@
                 return;
             }
 
+            // Desbloquear audio para móviles al hacer clic
+            initAudioContext();
+
             const now = new Date();
             const [hours, minutes] = startTimeStr.split(':');
             let nextDose = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0);
 
-            // Si la hora elegida ya pasó hoy, programarla para mañana a la misma hora
+            // Si la hora elegida ya pasó hoy, programarla para el siguiente ciclo
             if (nextDose <= now) {
                 nextDose.setHours(nextDose.getHours() + intervalHours);
             }
@@ -298,6 +311,19 @@
             alert('¡Recordatorio activado con éxito!');
         }
 
+        function initAudioContext() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log("Audio Context no soportado");
+                }
+            }
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
         function checkAlarmLoop(state) {
             if (alarmTimer) clearInterval(alarmTimer);
 
@@ -305,21 +331,16 @@
                 const now = new Date().getTime();
                 if (now >= state.nextDoseTimestamp) {
                     triggerAlarmSound();
-                    document.getElementById('modal-med-text').innerText = `Es hora de tu medicina: ${state.medName}`;
+                    document.getElementById('modal-med-name').innerText = state.medName;
                     document.getElementById('alarm-modal').style.display = 'flex';
                 }
             }, 1000);
         }
 
-        // Generador de sonido de alarma insistente (Beep beep)
+        // Generador de sonido de alarma original (Pitidos insistentes tipo Beep)
         function triggerAlarmSound() {
             if (beepInterval) return;
-            
-            try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                console.log("Audio Context no soportado");
-            }
+            initAudioContext();
 
             beepInterval = setInterval(() => {
                 if (!audioContext) return;
@@ -327,30 +348,29 @@
                     let osc = audioContext.createOscillator();
                     let gain = audioContext.createGain();
                     osc.type = 'sine';
-                    osc.frequency.value = 800;
-                    gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+                    osc.frequency.value = 850;
+                    gain.gain.setValueAtTime(0.7, audioContext.currentTime);
                     osc.connect(gain);
                     gain.connect(audioContext.destination);
                     osc.start();
-                    osc.stop(audioContext.currentTime + 0.3);
+                    osc.stop(audioContext.currentTime + 0.35);
                 } catch(err) {
                     console.log(err);
                 }
             }, 800);
         }
 
-        // Acción al presionar el botón de "Ya me la tomé"
+        // Al presionar "Ya me la tomé", se detiene el sonido y se programa automáticamente la próxima hora exacta
         function acknowledgeAlarm() {
-            // Detener sonido
             if (beepInterval) {
                 clearInterval(beepInterval);
                 beepInterval = null;
             }
             document.getElementById('alarm-modal').style.display = 'none';
 
-            // Calcular automáticamente la siguiente dosis sumando el intervalo
             const savedState = JSON.parse(localStorage.getItem('medState'));
             if (savedState) {
+                // Sumar las horas del intervalo configurado a la última hora para la siguiente toma
                 let nextDose = new Date(savedState.nextDoseTimestamp + (savedState.intervalHours * 3600 * 1000));
                 
                 savedState.nextDoseTimestamp = nextDose.getTime();
@@ -359,6 +379,7 @@
                 localStorage.setItem('medState', JSON.stringify(savedState));
                 document.getElementById('next-dose-time').innerText = savedState.nextDoseTimeStr;
                 
+                // Seguir vigilando para el siguiente ciclo
                 checkAlarmLoop(savedState);
             }
         }
