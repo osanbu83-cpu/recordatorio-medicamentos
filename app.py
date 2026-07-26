@@ -9,15 +9,11 @@ def index():
 
 @app.route('/manifest.json')
 def serve_manifest():
-    return send_from_directory(
-        '.', 'manifest.json'
-    )
+    return send_from_directory('.', 'manifest.json')
 
 @app.route('/pwabuilder-sw.js')
 def serve_sw():
-    return send_from_directory(
-        '.', 'pwabuilder-sw.js'
-    )
+    return send_from_directory('.', 'pwabuilder-sw.js')
 
 if __name__ == '__main__':
     app.run(debug=True)
