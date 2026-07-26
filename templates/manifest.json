@@ -1,16 +1,16 @@
 {
-  "name": "Mis Medicamentos",
+  "name": "Recordatorio de Medicamentos",
   "short_name": "Medicamentos",
+  "description": "Aplicación para gestionar y recordar las horas de tus medicamentos",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
+      "src": "https://via.placeholder.com/512",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
