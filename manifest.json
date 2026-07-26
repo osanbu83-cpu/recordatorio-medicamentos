@@ -1,14 +1,14 @@
 {
-  "name": "Recordatorio de Medicamentos",
+  "name": "Mis Medicamentos",
   "short_name": "Medicamentos",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#007bff",
-  "description": "Aplicación de recordatorios y control de medicamentos con alertas.",
+  "background_color": "#2563eb",
+  "theme_color": "#2563eb",
+  "description": "Aplicación para recordar la toma de medicamentos a tiempo.",
   "icons": [
     {
-      "src": "/static/icon.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
