@@ -5,7 +5,8 @@
   "display": "standalone",
   "background_color": "#2563eb",
   "theme_color": "#2563eb",
-  "description": "Aplicación para recordar la toma de medicamentos a tiempo.",
+  "description": "Aplicacion para recordar la toma de medicamentos a tiempo.",
+  "id": "/index.html",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
