@@ -1,17 +1,11 @@
 {
-  "name": "Recordatorio de Medicamentos",
-  "short_name": "Medicamentos",
-  "start_url": "/",
-  "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
-  "description": "Aplicación de recordatorios y control de medicamentos con alertas.",
-  "icons": [
-    {
-      "src": "/static/icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "recordatorio-medicamentos.vercel",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "recordatorio-medicamentos.vercel",
+  "start_url": "/",
+  "theme_color": "#2563eb"
 }
