@@ -1,18 +1,13 @@
 {
-  "name": "Mis Medicamentos",
-  "short_name": "Medicamentos",
-  "start_url": "/",
+
+  "background_color": "#ffffff",
+  "dir": "ltr",
   "display": "standalone",
-  "background_color": "#2563eb",
+  "name": "recordatorio-medicamentos.vercel",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Mis medicamentos",
+  "start_url": "/",
   "theme_color": "#2563eb",
-  "description": "Aplicacion para recordar la toma de medicamentos a tiempo.",
-  "id": "/index.html",
-  "icons": [
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ]
+  "description": "Aplicacion para recordar la toma de medicamentos a tiempo."
 }
