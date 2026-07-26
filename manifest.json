@@ -1,0 +1,16 @@
+{
+  "name": "Recordatorio de Medicamentos",
+  "short_name": "Medicamentos",
+  "description": "Aplicación para gestionar y recordar las horas de tus medicamentos",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
