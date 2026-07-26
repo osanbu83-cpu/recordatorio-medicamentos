@@ -13,5 +13,11 @@ def serve_manifest():
         '.', 'manifest.json'
     )
 
+@app.route('/pwabuilder-sw.js')
+def serve_sw():
+    return send_from_directory(
+        '.', 'pwabuilder-sw.js'
+    )
+
 if __name__ == '__main__':
     app.run(debug=True)
