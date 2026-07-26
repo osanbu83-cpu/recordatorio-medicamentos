@@ -575,15 +575,25 @@
         }
     </script>
 
-    <!-- Registro del Service Worker para PWABuilder -->
+    <!-- Registro del Service Worker y Permiso de Notificaciones -->
     <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/pwabuilder-sw.js')
-            .then(reg => console.log('Service Worker registrado con éxito:', reg))
-            .catch(err => console.log('Error al registrar el Service Worker:', err));
-        });
-      }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/pwabuilder-sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker registrado con éxito:', reg.scope);
+                        return Notification.requestPermission();
+                    })
+                    .then((permission) => {
+                        if (permission === 'granted') {
+                            console.log('Permisos de notificación concedidos.');
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Error al registrar el Service Worker:', err);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
