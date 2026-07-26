@@ -9,7 +9,9 @@ def index():
 
 @app.route('/manifest.json')
 def serve_manifest():
-    return send_from_directory('.', 'manifest.json')
+    return send_from_directory(
+        '.', 'manifest.json'
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
