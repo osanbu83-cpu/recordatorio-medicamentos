@@ -4,20 +4,17 @@ importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox
 
 const CACHE = "pwabuilder-page";
 
-// TODO: replace the following with the correct offline fallback page i.e.:
-// const offlineFallbackPage = "offline.html";
-
 self.addEventListener("message", (event) => {
     if (event.data && event.data.type === "SKIP_WAITING") {
         self.skipWaiting();
     }
 });
 
-self.addEventListener('install', async (event) => {
+self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE)
             .then((cache) => {
-                // cache.add(offlineFallbackPage);
+                // cache.addAll(offlineFallbackPage);
             })
     );
 });
@@ -39,24 +36,24 @@ self.addEventListener('fetch', (event) => {
                 return networkResp;
             } catch (error) {
                 const cache = await caches.open(CACHE);
-                const cachedResp = await cache.match(offlineFallbackPage);
+                const cachedResp = await cache.match(event.request);
                 return cachedResp;
             }
         })());
     }
 });
 
-// ==========================================================
-// Lógica para notificaciones push (Despierta el dispositivo)
-// ==========================================================
+// ==========================================
+// Lógica para notificaciones push de alarma
+// ==========================================
 
 self.addEventListener('push', function(event) {
-    const title = 'Recordatorio de Medicamento';
+    const title = 'Recordatorio de Medicamentos';
     const options = {
         body: event.data ? event.data.text() : '¡Es hora de tomar tu medicina!',
         icon: '/static/icon.png',
         badge: '/static/badge.png',
-        vibrate: [300, 100, 300, 100, 300],
+        vibrate: [500, 200, 500, 200, 500, 200, 500],
         tag: 'alarma-medicamento',
         renotify: true,
         requireInteraction: true
@@ -67,7 +64,6 @@ self.addEventListener('push', function(event) {
     );
 });
 
-// Maneja la acción al tocar la notificación para abrir la app
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     event.waitUntil(
