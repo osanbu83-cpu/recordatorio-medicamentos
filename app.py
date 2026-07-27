@@ -27,7 +27,6 @@ def serve_manifest():
 def serve_sw():
     return send_from_directory('.', 'pwabuilder-sw.js')
 
-# Ruta para registrar el teléfono
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     subscription = request.get_json()
@@ -37,7 +36,6 @@ def subscribe():
         return jsonify({"status": "success", "message": "Suscrito correctamente"})
     return jsonify({"status": "error", "message": "Suscripción inválida"}), 400
 
-# Ruta para disparar la notificación push real hacia los dispositivos registrados
 @app.route('/send-notification', methods=['POST'])
 def send_notification():
     data = request.get_json()
