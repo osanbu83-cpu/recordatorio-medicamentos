@@ -35,7 +35,6 @@ def subscribe():
         if subscription not in push_subscriptions:
             push_subscriptions.append(subscription)
         return jsonify({"status": "success", "message": "Suscrito correctamente"})
-    return jsonify({"status": "error", "message": "Suscripción inválida"}), 400
 
 # Ruta para disparar la notificación push real hacia los dispositivos registrados
 @app.route('/send-notification', methods=['POST'])
