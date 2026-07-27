@@ -5,9 +5,9 @@ from pywebpush import webpush, WebPushException
 
 app = Flask(__name__)
 
-# Llaves VAPID para firmar las notificaciones push (coinciden con la clave pública del frontend)
+# Llaves VAPID para firmar las notificaciones push
 VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYUW5NxhAI'
-VAPID_PRIVATE_KEY = 'TU_LLAVE_PRIVADA_VAPID'  # O puedes generar un par propio si lo deseas, pero esta funciona para pruebas
+VAPID_PRIVATE_KEY = 'TU_LLAVE_PRIVADA_VAPID'
 VAPID_CLAIMS = {
     "sub": "mailto:tu-correo@example.com"
 }
@@ -32,7 +32,6 @@ def serve_sw():
 def subscribe():
     subscription = request.get_json()
     if subscription:
-        # Evitar duplicados exactos
         if subscription not in push_subscriptions:
             push_subscriptions.append(subscription)
         return jsonify({"status": "success", "message": "Suscrito correctamente"})
@@ -62,4 +61,3 @@ def send_notification():
 
 if __name__ == '__main__':
     app.run(debug=True)
-b
