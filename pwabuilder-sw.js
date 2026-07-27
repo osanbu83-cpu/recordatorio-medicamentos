@@ -1,47 +1,75 @@
 // This is the "Offline page" service worker
-
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
 const CACHE = "pwabuilder-page";
 
-// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
-const offlineFallbackPage = "ToDo-replace-this-name.html";
+// TODO: replace the following with the correct offline fallback page i.e.: en-us.html
+const offlineFallbackPage = "ToDo-replace-this";
 
 self.addEventListener("message", (event) => {
-  if (event.data && event.data.type === "SKIP_WAITING") {
-    self.skipWaiting();
-  }
+    if (event.data && event.data.type === "SKIP_WAITING") {
+        self.skipWaiting();
+    }
 });
 
 self.addEventListener('install', async (event) => {
-  event.waitUntil(
-    caches.open(CACHE)
-      .then((cache) => cache.add(offlineFallbackPage))
-  );
+    event.waitUntil(
+        caches.open(CACHE)
+            .then((cache) => cache.add(offlineFallbackPage))
+    );
 });
 
 if (workbox.navigationPreload.isSupported()) {
-  workbox.navigationPreload.enable();
+    workbox.navigationPreload.enable();
 }
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.mode === 'navigate') {
-    event.respondWith((async () => {
-      try {
-        const preloadResp = await event.preloadResponse;
+    if (event.request.mode === 'navigate') {
+        event.respondWith((async () => {
+            try {
+                const preloadResp = await event.preloadResponse;
 
-        if (preloadResp) {
-          return preloadResp;
-        }
+                if (preloadResp) {
+                    return preloadResp;
+                }
 
-        const networkResp = await fetch(event.request);
-        return networkResp;
-      } catch (error) {
+                const networkResp = await fetch(event.request);
+                return networkResp;
+            } catch (error) {
 
-        const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match(offlineFallbackPage);
-        return cachedResp;
-      }
-    })());
-  }
+                const cache = await caches.open(CACHE);
+                const cachedResp = await cache.match(offlineFallbackPage);
+                return cachedResp;
+            }
+        })());
+    }
+});
+
+// ==========================================
+// NUEVO: Lógica para notificaciones y alarmas
+// ==========================================
+
+self.addEventListener('push', function(event) {
+    const title = 'Recordatorio de Medicamento';
+    const options = {
+        body: event.data ? event.data.text() : 'Es hora de tomar tu medicina.',
+        icon: '/static/icon.png',
+        badge: '/static/badge.png',
+        vibrate: [300, 100, 300, 100, 300], // Patrón de vibración fuerte para despertar el cel
+        tag: 'alarma-medicamento',
+        renotify: true,
+        requireInteraction: true // Mantiene la notificación fija hasta que el usuario la toque
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(title, options)
+    );
+});
+
+// Maneja la acción al tocar la notificación para abrir la app
+self.addEventListener('notificationclick', function(event) {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow('/')
+    );
 });
