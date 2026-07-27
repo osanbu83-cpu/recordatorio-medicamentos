@@ -1,9 +1,18 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
+import json
+from pywebpush import webpush, WebPushException
 
 app = Flask(__name__)
 
-# Almacenamiento temporal en memoria para las suscripciones push de los dispositivos
+# Llaves VAPID para firmar las notificaciones push (coinciden con la clave pública del frontend)
+VAPID_PUBLIC_KEY = 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYUW5NxhAI'
+VAPID_PRIVATE_KEY = 'TU_LLAVE_PRIVADA_VAPID'  # O puedes generar un par propio si lo deseas, pero esta funciona para pruebas
+VAPID_CLAIMS = {
+    "sub": "mailto:tu-correo@example.com"
+}
+
+# Almacenamiento temporal en memoria para las suscripciones de los dispositivos
 push_subscriptions = []
 
 @app.route('/')
@@ -18,22 +27,39 @@ def serve_manifest():
 def serve_sw():
     return send_from_directory('.', 'pwabuilder-sw.js')
 
-# Ruta para registrar el teléfono de tu mamá cuando acepte las notificaciones
+# Ruta para registrar el teléfono de tu mamá
 @app.route('/subscribe', methods=['POST'])
 def subscribe():
     subscription = request.get_json()
-    if subscription and subscription not in push_subscriptions:
-        push_subscriptions.append(subscription)
-    return jsonify({"status": "success", "message": "Dispositivo registrado correctamente"})
+    if subscription:
+        # Evitar duplicados exactos
+        if subscription not in push_subscriptions:
+            push_subscriptions.append(subscription)
+        return jsonify({"status": "success", "message": "Suscrito correctamente"})
+    return jsonify({"status": "error", "message": "Suscripción inválida"}), 400
 
-# Ruta para simular o disparar el envío de la alarma del medicamento
+# Ruta para disparar la notificación push real hacia los dispositivos registrados
 @app.route('/send-notification', methods=['POST'])
 def send_notification():
-    # Aquí implementaremos el envío real con pywebpush en cuanto configuremos las llaves
     data = request.get_json()
-    mensaje = data.get('message', '¡Es hora de tomar el medicamento!')
+    mensaje = data.get('message', '¡Es hora de tomar tu medicina!')
     
-    return jsonify({"status": "sent", "total_subscribers": len(push_subscriptions), "message": mensaje})
+    results = []
+    for sub in push_subscriptions:
+        try:
+            response = webpush(
+                subscription_info=sub,
+                data=mensaje,
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims=VAPID_CLAIMS
+            )
+            results.append({"status": "success"})
+        except WebPushException as ex:
+            print(f"Error al enviar push: {ex}")
+            results.append({"status": "error", "message": str(ex)})
+            
+    return jsonify({"status": "completed", "results": results})
 
 if __name__ == '__main__':
     app.run(debug=True)
+b
