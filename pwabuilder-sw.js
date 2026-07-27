@@ -1,10 +1,11 @@
 // This is the "Offline page" service worker
+
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
 const CACHE = "pwabuilder-page";
 
-// TODO: replace the following with the correct offline fallback page i.e.: en-us.html
-const offlineFallbackPage = "ToDo-replace-this";
+// TODO: replace the following with the correct offline fallback page i.e.:
+// const offlineFallbackPage = "offline.html";
 
 self.addEventListener("message", (event) => {
     if (event.data && event.data.type === "SKIP_WAITING") {
@@ -15,7 +16,9 @@ self.addEventListener("message", (event) => {
 self.addEventListener('install', async (event) => {
     event.waitUntil(
         caches.open(CACHE)
-            .then((cache) => cache.add(offlineFallbackPage))
+            .then((cache) => {
+                // cache.add(offlineFallbackPage);
+            })
     );
 });
 
@@ -28,7 +31,6 @@ self.addEventListener('fetch', (event) => {
         event.respondWith((async () => {
             try {
                 const preloadResp = await event.preloadResponse;
-
                 if (preloadResp) {
                     return preloadResp;
                 }
@@ -36,7 +38,6 @@ self.addEventListener('fetch', (event) => {
                 const networkResp = await fetch(event.request);
                 return networkResp;
             } catch (error) {
-
                 const cache = await caches.open(CACHE);
                 const cachedResp = await cache.match(offlineFallbackPage);
                 return cachedResp;
@@ -45,20 +46,20 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// ==========================================
-// NUEVO: Lógica para notificaciones y alarmas
-// ==========================================
+// ==========================================================
+// Lógica para notificaciones push (Despierta el dispositivo)
+// ==========================================================
 
 self.addEventListener('push', function(event) {
     const title = 'Recordatorio de Medicamento';
     const options = {
-        body: event.data ? event.data.text() : 'Es hora de tomar tu medicina.',
+        body: event.data ? event.data.text() : '¡Es hora de tomar tu medicina!',
         icon: '/static/icon.png',
         badge: '/static/badge.png',
-        vibrate: [300, 100, 300, 100, 300], // Patrón de vibración fuerte para despertar el cel
+        vibrate: [300, 100, 300, 100, 300],
         tag: 'alarma-medicamento',
         renotify: true,
-        requireInteraction: true // Mantiene la notificación fija hasta que el usuario la toque
+        requireInteraction: true
     };
 
     event.waitUntil(
